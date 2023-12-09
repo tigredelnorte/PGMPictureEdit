@@ -21,21 +21,87 @@ void wyswietlMenu(char* gwiazdki, int iloscObrazow, char* aktywnyNazwa)
 {
 	if (aktywnyNazwa == NULL) aktywnyNazwa = "BRAK";
 	printf("*********************************************************\n");
-	printf("                  PRZETWARZANIE OBRAZOW                  \n");
-	printf("                   Obrazy w galerii: %d                  \n", iloscObrazow);
-	printf("                  Aktywny obraz: %s                  \n", aktywnyNazwa);
+	printf("                  Menu Galerii \"J\"                     \n");
+	printf("*********************************************************\n");
+	printf("               Obrazy w galerii: %d                      \n", iloscObrazow);
+	printf("               Aktywny obraz: %s                         \n", aktywnyNazwa);
 	printf("*********************************************************\n");
 
 	//printf("\n                    MENU\n");
-	printf("1. Pobierz nowy obraz z pliku                    [%c]\n", gwiazdki[0]);
-	printf("2. Wczytaj aktywny obraz z galerii               [%c]\n", gwiazdki[1]);
-	printf("4. Usun obraz z galerii                          [%c]\n", gwiazdki[3]);
-	printf("5. Zakoncz program                               [%c]\n", gwiazdki[3]);
-	printf("Wybierz opcje (1-5): ");
+	printf("1. Pobierz nowy obraz z pliku do galerii         [%c]\n", gwiazdki[0]);
+	printf("2. Ustaw aktywny obraz                           [%c]\n", gwiazdki[1]);
+	printf("3. Przetwarzaj aktywny obraz                     [%c]\n", gwiazdki[2]);
+	printf("4. Zamknij aktywny obraz                         [%c]\n", gwiazdki[3]);
+	printf("5. Usun obraz z galerii                          [%c]\n", gwiazdki[4]);
+	printf("6. Zakoncz program                               [%c]\n", gwiazdki[5]);
+	printf("Wybierz opcje (1-6): ");
+}
+
+void wyswietlMenuPrzetwarzania(struct ObrazekPGM* aktywnyObrazek)
+{
+	printf("\n*********************************************************\n");
+	printf("            PRZETWARZANIE AKTYWNEGO OBRAZU               \n");
+	printf("*********************************************************\n");
+	printf("            Aktywny obraz: %s                            \n", aktywnyObrazek->nazwaPliku);
+	printf("*********************************************************\n");
+
+	//printf("\n                    MENU\n");
+	printf("1. Obrot o 90-k stopni         \n");
+	printf("2. Historiogram                \n");
+	printf("3. Negatyw                     \n");
+	printf("4. Pieprz i sol                \n");
+	printf("5. Filtr Gaussa                \n");
+	printf("6. Cofnij zmiany               \n");
+	printf("7. Zapisz zmiany               \n");
+	printf("8. Wyjdz do Menu Galerii       \n");
+	printf("Wybierz opcje (1-8): ");
+}
+
+void przetwarzajAktywnyObraz(struct ObrazekPGM* aktywnyObrazek) {
+	int wyborMenuPrzetwarzania = 0;
+	do {
+		wyswietlMenuPrzetwarzania(/*gwiazdki, galeriaJ.iloscObrazow, */aktywnyObrazek);
+		while (scanf("%d", &wyborMenuPrzetwarzania) != 1)
+		{
+			printf("!!! BLAD !!!\nWybierz opcje (1-8): ");
+			scanf("%*[^\n]");
+			printf("\n");
+		}
+		switch (wyborMenuPrzetwarzania) {
+		case 1: // Obrot o 90-k stopni
+			printf("\n");
+			break;
+		case 2: // Historiogram
+			printf("\n");
+			break;
+		case 3: // Negatyw
+			printf("\n");
+			break;
+		case 4: // Pieprz i sol
+			printf("\n");
+			break;
+		case 5: // Filtr Gaussa
+			printf("\n");
+			break;
+		case 6: // Cofnij zmiany
+			printf("\n");
+			break;
+		case 7: // Zapisz zmiany
+			printf("\n");
+			break;
+		case 8: // Wyjdz do Menu Galerii
+			printf("\n");
+			break;
+		default:
+			printf("Nieprawidlowy wybor. Wybierz opcje od 1 do 8.\n");
+			printf("\n");
+			break;
+		}
+	} while (wyborMenuPrzetwarzania != 8);
 }
 
 // Funkcja do odczytu danych z pliku PGM
-void wczytajObrazek(struct ObrazekPGM* obrazek) {
+void wczytajObraz(struct ObrazekPGM* obrazek) {
 
 	char nazwa[20];
 	printf("Podaj nazwe pliku PGM do wczytania: ");
@@ -102,7 +168,7 @@ void wczytajObrazek(struct ObrazekPGM* obrazek) {
 				int index = 0;
 				for (int j = 0; j < obrazek->szerokosc; j++) {
 					sscanf(ptr, "%d%n", &obrazek->piksele[i][j], &index);
-					printf("Odczyt[%d][%d]: %d\n", i, j, obrazek->piksele[i][j]);
+					//printf("Odczyt[%d][%d]: %d\n", i, j, obrazek->piksele[i][j]);
 					ptr += index;
 				}
 			}
@@ -126,19 +192,31 @@ void dodajObrazDoGalerii(struct Galeria* galeria, struct ObrazekPGM obraz) {
 		}
 		(galeria)->obrazy = nowe_obrazy;
 	}
-
+	for (int i = 0; i < (galeria)->iloscObrazow; i++)
+	{
+		if (strcmp(galeria->obrazy[i].nazwaPliku, obraz.nazwaPliku) == 0) return;
+	}
 	(galeria)->obrazy[(galeria)->iloscObrazow] = obraz;
 	(galeria)->iloscObrazow += 1;
 }
 
-void usunObrazZGalerii(struct Galeria* galeria, int indeks) {
-	if (indeks < 0 || indeks >= galeria->iloscObrazow) {
+void usunObrazZGalerii(struct Galeria* galeria, int* indeks) {
+	//do {
+	//	printf("Wybierz obraz do usuniêcia: ");
+	//	scanf("%d", &indeks);
+	//	if (indeks < 1 || indeks > galeria->iloscObrazow) {
+	//		printf("Nieprawidlowy numer obrazu. Podaj liczbe z zakresu 1-%d\n", galeria->iloscObrazow);
+	//	}
+	//} while (indeks < 1 || indeks > galeria->iloscObrazow);
+	printf("Wybierz obraz do usuniecia: ");
+	scanf("%d", indeks);
+	if (*indeks <= 0 || *indeks > galeria->iloscObrazow) {
 		printf("Nieprawid³owy indeks obrazu\n");
 		return;
 	}
 
-	free(galeria->obrazy[indeks].piksele); // Zwolnienie pamiêci dla pikseli obrazu
-	for (int i = indeks; i < galeria->iloscObrazow - 1; ++i) {
+	free(galeria->obrazy[*indeks - 1].piksele); // Zwolnienie pamiêci dla pikseli obrazu
+	for (int i = *indeks - 1; i < galeria->iloscObrazow - 1; ++i) {
 		galeria->obrazy[i] = galeria->obrazy[i + 1]; // Przesuniêcie obrazów w tablicy o jedno miejsce w lewo
 	}
 
@@ -151,25 +229,33 @@ void usunObrazZGalerii(struct Galeria* galeria, int indeks) {
 }
 
 void wypiszNazwyObrazow(struct Galeria* galeria) {
-	printf("\nLista wczytanych obrazow:\n");
+	printf("\nObrazy w Galerii \"J\":\n");
 	for (int i = 0; i < galeria->iloscObrazow; ++i) {
 		printf("%d. %s\n", i + 1, galeria->obrazy[i].nazwaPliku);
 	}
 }
 
-void wczytajWybranyObraz(struct Galeria* galeria, int indeks, struct ObrazekPGM* aktywnyObraz) {
+void ustawAktywnyObraz(struct Galeria* galeria, int* indeks, struct ObrazekPGM* aktywnyObraz) {
 	do {
-		printf("Wybierz numer obrazu do wczytania: ");
-		scanf("%d", &indeks);
-		if (indeks < 1 || indeks > galeria->iloscObrazow) {
+		printf("Wybierz aktywny obraz: ");
+		scanf("%d", indeks);
+		if (*indeks < 1 || *indeks > galeria->iloscObrazow) {
 			printf("Nieprawidlowy numer obrazu. Podaj liczbe z zakresu 1-%d\n", galeria->iloscObrazow);
 		}
-	} while (indeks < 1 || indeks > galeria->iloscObrazow);
+	} while (*indeks < 1 || *indeks > galeria->iloscObrazow);
 
 	// Skopiowanie wybranego obrazu do struktury wczytanyObraz
-	*aktywnyObraz = galeria->obrazy[indeks - 1];
+	*aktywnyObraz = galeria->obrazy[*indeks - 1];
 }
 
+void zamknijAktywnyObraz(struct ObrazekPGM* aktywnyObrazek, int* indeks)
+{
+	indeks = NULL;
+	strcpy((*aktywnyObrazek).nazwaPliku, "Brak");
+	(*aktywnyObrazek).skalaSzarosci = 0;
+	(*aktywnyObrazek).szerokosc = 0;
+	(*aktywnyObrazek).wysokosc = 0;
+}
 
 int main() {
 	char gwiazdki[] = { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' };
@@ -180,6 +266,7 @@ int main() {
 	int indeksUsunObraz = NULL;
 	struct ObrazekPGM wczytanyObrazek;
 	struct ObrazekPGM aktywnyObrazek;
+	strcpy(aktywnyObrazek.nazwaPliku, "Brak");
 
 	struct Galeria galeriaJ;
 	galeriaJ.iloscObrazow = 0;
@@ -191,13 +278,14 @@ int main() {
 		wyswietlMenu(gwiazdki, galeriaJ.iloscObrazow, aktywnyObrazek.nazwaPliku);
 		while (scanf("%d", &wyborMenu) != 1)
 		{
-			printf("!!! BLAD !!!\nWybierz opcje (1-9): ");
+			printf("!!! BLAD !!!\nWybierz opcje (1-6): ");
 			scanf("%*[^\n]");
+			printf("\n");
 		}
 
 		switch (wyborMenu) {
-		case 1:
-			wczytajObrazek(&wczytanyObrazek);
+		case 1: // Pobierz nowy obraz z pliku do galerii  
+			wczytajObraz(&wczytanyObrazek);
 			//printf("Nazwa pliku: %s\n", wczytanyObrazek.nazwaPliku);
 			//printf("Szerokosc: %d\n", wczytanyObrazek.szerokosc);
 			//printf("Wysokosc: %d\n", wczytanyObrazek.wysokosc);
@@ -216,7 +304,6 @@ int main() {
 			//printf("Szerokosc: %d\n", galeriaJ.obrazy[0].szerokosc);
 			//printf("Wysokosc: %d\n", galeriaJ.obrazy[0].wysokosc);
 			//printf("Skala szarosci: %d\n", galeriaJ.obrazy[0].skalaSzarosci);
-			//
 			//printf("XXXXXXXXX\n");
 			//for (int i = 0; i < galeriaJ.obrazy[0].wysokosc; i++) {
 			//	for (int j = 0; j < galeriaJ.obrazy[0].szerokosc; j++) {
@@ -225,61 +312,52 @@ int main() {
 			//	printf("\n");
 			//}
 			//printf("XXXXXXXXX\n");
-			////2
-			//wczytajObrazek(&wczytanyObrazek);
-			//printf("Nazwa pliku: %s\n", wczytanyObrazek.nazwaPliku);
-			//printf("Szerokosc: %d\n", wczytanyObrazek.szerokosc);
-			//printf("Wysokosc: %d\n", wczytanyObrazek.wysokosc);
-			//printf("Skala szarosci: %d\n", wczytanyObrazek.skalaSzarosci);
-			//
-			//printf("XXXXXXXXX\n");
-			//for (int i = 0; i < wczytanyObrazek.wysokosc; i++) {
-			//	for (int j = 0; j < wczytanyObrazek.szerokosc; j++) {
-			//		printf("%d ", wczytanyObrazek.piksele[i][j]);
-			//	}
-			//	printf("\n");
-			//}
-			//printf("XXXXXXXXX\n");
-			//dodajObrazDoGalerii(&galeriaJ, wczytanyObrazek);
-			//printf("Nazwa pliku: %s\n", galeriaJ.obrazy[0].nazwaPliku);
-			//printf("Szerokosc: %d\n", galeriaJ.obrazy[0].szerokosc);
-			//printf("Wysokosc: %d\n", galeriaJ.obrazy[0].wysokosc);
-			//printf("Skala szarosci: %d\n", galeriaJ.obrazy[0].skalaSzarosci);
-			//
-			//printf("XXXXXXXXX\n");
-			//for (int i = 0; i < galeriaJ.obrazy[1].wysokosc; i++) {
-			//	for (int j = 0; j < galeriaJ.obrazy[1].szerokosc; j++) {
-			//		printf("%d ", galeriaJ.obrazy[1].piksele[i][j]);
-			//	}
-			//	printf("\n");
-			//}
-			//printf("XXXXXXXXX\n");
-			//printf("Obrazy w galerii %d\n", galeriaJ.iloscObrazow);
+			printf("\n");
 			break;
-		case 2:
-			wypiszNazwyObrazow(&galeriaJ, &indeksAktywnyObraz);
-			wczytajWybranyObraz(&galeriaJ, &indeksAktywnyObraz, &aktywnyObrazek);
+		case 2: // Ustaw aktywny obraz
+			wypiszNazwyObrazow(&galeriaJ);
+			ustawAktywnyObraz(&galeriaJ, &indeksAktywnyObraz, &aktywnyObrazek);
+			printf("\nNazwa pliku: %s\n", aktywnyObrazek.nazwaPliku);
+			printf("Szerokosc: %d\n", aktywnyObrazek.szerokosc);
+			printf("Wysokosc: %d\n", aktywnyObrazek.wysokosc);
+			printf("Skala szarosci: %d\n", aktywnyObrazek.skalaSzarosci);
+			printf("XXXXXXXXX\n");
+			for (int i = 0; i < aktywnyObrazek.wysokosc; i++) {
+				for (int j = 0; j < aktywnyObrazek.szerokosc; j++) {
+					printf("%d ", aktywnyObrazek.piksele[i][j]);
+				}
+				printf("\n");
+			}
+			printf("XXXXXXXXX\n");
+			printf("\n");
 			break;
-		case 3:
-			wypiszNazwyObrazow(&galeriaJ, &indeksUsunObraz);
+		case 3: // Przetwarzaj aktywny obraz
+			przetwarzajAktywnyObraz(&aktywnyObrazek);
+			printf("\n");
+			break;
+		case 4: // Zamknij aktywny obraz 
+			zamknijAktywnyObraz(&aktywnyObrazek, &indeksAktywnyObraz);
+			printf("\n");
+			break;
+		case 5: // Usun obraz z galerii  
+			wypiszNazwyObrazow(&galeriaJ);
 			usunObrazZGalerii(&galeriaJ, &indeksUsunObraz);
+			if (indeksAktywnyObraz == indeksUsunObraz)
+			{
+				zamknijAktywnyObraz(&aktywnyObrazek, &indeksAktywnyObraz);
+			}
+			printf("\n");
 			break;
-		case 4:
-			//menuZapisDoPliku();
-			break;
-		case 5:
+		case 6: // Zakoncz program  
 			printf("Program zostal zakonczony.\n");
+			printf("\n");
 			break;
 		default:
-			printf("Nieprawidlowy wybor. Wybierz opcje od 1 do 4.\n");
+			printf("Nieprawidlowy wybor. Wybierz opcje od 1 do 6.\n");
+			printf("\n");
 			break;
 		}
-	} while (wyborMenu != 5);
-
-
-
-	// Do dalszego przetwarzania, np. obracania obrazka
-	// Mo¿esz u¿yæ wczytanyObrazek.piksele do dostêpu do wartoœci pikseli
+	} while (wyborMenu != 6);
 
 	// Na koniec zwolnij pamiêæ zaalokowan¹ dla tablicy pikseli
 	return 0;

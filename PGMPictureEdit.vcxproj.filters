@@ -22,5 +22,7 @@
   <ItemGroup>
     <None Include="obraz.pgm" />
     <None Include=".gitignore" />
+    <None Include="kwadrat.pgm" />
+    <None Include="obraz1.pgm" />
   </ItemGroup>
 </Project>
