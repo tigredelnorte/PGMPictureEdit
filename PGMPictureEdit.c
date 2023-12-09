@@ -201,13 +201,6 @@ void dodajObrazDoGalerii(struct Galeria* galeria, struct ObrazekPGM obraz) {
 }
 
 void usunObrazZGalerii(struct Galeria* galeria, int* indeks) {
-	//do {
-	//	printf("Wybierz obraz do usuniêcia: ");
-	//	scanf("%d", &indeks);
-	//	if (indeks < 1 || indeks > galeria->iloscObrazow) {
-	//		printf("Nieprawidlowy numer obrazu. Podaj liczbe z zakresu 1-%d\n", galeria->iloscObrazow);
-	//	}
-	//} while (indeks < 1 || indeks > galeria->iloscObrazow);
 	printf("Wybierz obraz do usuniecia: ");
 	scanf("%d", indeks);
 	if (*indeks <= 0 || *indeks > galeria->iloscObrazow) {
