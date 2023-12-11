@@ -57,6 +57,168 @@ void wyswietlMenuPrzetwarzania(struct ObrazekPGM* aktywnyObrazek)
 	printf("Wybierz opcje (1-8): ");
 }
 
+//void obrotObrazu(struct obrazekPGM* obrazek, int wybor)
+//{
+//	int K = 0;
+//	printf("Szerokosc: %d", obrazek.szerokosc);
+//	printf("%d", obrazek->wysokosc);
+//	/*  printf("Podaj kierunek obrotu obrazu: \n");
+//	  do
+//	  {
+//		  printf("Obrót zgodnie z ruchem wskazówek zegara: 1.\n Obrot przeciwnie do ruchu wskazowek zegara: 2 \n");
+//
+//		  while (scanf("%d", &wybor) != 1)
+//		  {
+//			  printf("!!! BLAD !!!\nWybierz opcje 1 lub 2");
+//			  scanf("%*[^\n]");
+//		  }
+//		  if (!(wybor == 1 || wybor == 2))
+//			  printf("\nBLAD Sproboj ponownie\n");
+//	  } while (!(wybor == 1 || wybor == 2));*/
+//
+//	printf("Podaj K, jest to wielokrotnoœæ 90 stopni\n");
+//	while (scanf("%d", &K) != 1)
+//	{
+//		printf("!!! BLAD !!!\nPodaj poprawn¹ iloœæ obrotów: ");
+//		scanf("%*[^\n]");
+//	}
+//	printf("Obraz zostanie obrócony o %d x 90 stopni\n", K);
+//
+//	int temp;
+//	if (wybor == 1)
+//	{
+//
+//		for (int k = 0; k < K; k++)
+//		{
+//			// Transpozycja macierzy
+//			for (int i = 0; i < obrazek->wysokosc; i++)
+//			{
+//				for (int j = 0; j < obrazek->szerokosc; j++)
+//				{
+//					temp = obrazek->piksele[i][j];
+//					obrazek->piksele[i][j] = obrazek->piksele[j][i];
+//					obrazek->piksele[j][i] = temp;
+//					printf("Odczyt[%d][%d]: %d\n", i, j, obrazek->piksele[i][j]);
+//				}
+//			}
+//			for (int i = 0; i < obrazek->wysokosc; i++)
+//			{
+//				for (int j = 0; j < obrazek->szerokosc; j++)
+//				{
+//					printf("%d", obrazek->piksele[j][i]);
+//				}
+//			}
+//			printf("\n");
+//		}
+//	}
+//	//// Odwrócenie kolumn macierzy
+//	//for (int i = 0; i < obrazek->wysokoscObrazu; i++)
+//	//{
+//	//    for (int j = 0; j < obrazek->szerokoscObrazu / 2; j++)
+//	//    {
+//	//        temp = obrazek->piksele[i][j];
+//	//        obrazek->piksele[i][j] = obrazek->piksele[i][obrazek->szerokoscObrazu - 1 - j];
+//	//        obrazek->piksele[i][obrazek->szerokoscObrazu - 1 - j] = temp;
+//	//    }
+//	//}
+//}
+
+void histogram(struct ObrazekPGM* obrazek)
+{
+	int scale = obrazek->skalaSzarosci;
+	if (obrazek->skalaSzarosci != NULL) {
+
+	}
+	//odcienie szarosci
+	int histogram[100];
+	//przechodzenie przez piksele obrazu i zliczanie wartoœci intensywnoœci
+	for (int i = 0; i < obrazek->wysokosc; ++i)
+	{
+		for (int j = 0; j < obrazek->szerokosc; ++j)
+		{
+			int szarosc = obrazek->piksele[i][j];
+			histogram[szarosc]++;
+		}
+	}
+	
+	char nazwa[20];
+	printf("Podaj nazwe pliku: ");
+	scanf("%20s", nazwa);
+	char buf[0x26];
+	snprintf(buf, sizeof(nazwa) + 5, "%s.csv", nazwa);
+	FILE* plik = fopen(buf, "w");
+
+	if (plik == NULL)
+	{
+		printf("\nBlad otwarcia pliku %s\n", buf);
+	}
+
+	// Zapis do pliku CSV
+	//tab w excel
+	fprintf(plik, "Szarosc,Piksele\n");
+	for (int i = 0; i < 1000; ++i)
+	{
+		fprintf(plik, "%d,%d\n", i, histogram[i]);
+	}
+
+	fclose(plik);
+	printf("Histogram zosta³ zapisany do pliku %s.\n", nazwa);
+}
+
+//void odbicieOsi(struct obrazekPGM* obrazek, int wybor)
+//{
+//
+//	printf("Podaj oœ wzglêdem której obraz bêdzie odbity: \n");
+//	do
+//	{
+//		printf("Wzglêdem osi X: 1.\n Wzglêdem osi Y: 2 \n");
+//
+//		while (scanf("%d", &wybor) != 1)
+//		{
+//			printf("!!! BLAD !!!\nWybierz opcje 1 lub 2");
+//			scanf("%*[^\n]");
+//		}
+//		if (!(wybor == 1 || wybor == 2))
+//			printf("\nBLAD Sproboj ponownie\n");
+//		int temp = 0;
+//		if (wybor == 1)
+//		{
+//			//zmiana piksela wewnatrz kazdego wiersza
+//			for (int i = 0; i < obrazek->wysokosc / 2; i++)
+//			{
+//				for (int j = 0; j < obrazek->szerokosc; j++)
+//				{
+//					int temp = obrazek->piksele[i][j];
+//					obrazek->piksele[i][j] = obrazek->piksele[obrazek->wysokosc - 1 - i][j];
+//					obrazek->piksele[obrazek->wysokosc - 1 - i][j] = temp;
+//				}
+//			}
+//		}
+//		else
+//		{
+//			for (int i = 0; i < obrazek->wysokosc; i++)
+//			{
+//				for (int j = 0; j < obrazek->szerokosc / 2; j++)
+//				{
+//					int temp = obrazek->piksele[i][j];
+//					obrazek->piksele[i][j] = obrazek->piksele[i][obrazek->szerokosc - 1 - j];
+//					obrazek->piksele[i][obrazek->szerokosc - 1 - j] = temp;
+//				}
+//			}
+//		}
+//	} while (!(wybor == 1 || wybor == 2));
+//
+//	printf("Wyœwietlony obraz");
+//	for (int i = 0; i < obrazek->wysokosc; i++)
+//	{
+//		for (int j = 0; j < obrazek->szerokosc; j++)
+//		{
+//			printf("%d ", obrazek->piksele[i][j]);
+//		}
+//		printf("\n");
+//	}
+//}
+
 void przetwarzajAktywnyObraz(struct ObrazekPGM* aktywnyObrazek) {
 	int wyborMenuPrzetwarzania = 0;
 	do {
@@ -69,12 +231,15 @@ void przetwarzajAktywnyObraz(struct ObrazekPGM* aktywnyObrazek) {
 		}
 		switch (wyborMenuPrzetwarzania) {
 		case 1: // Obrot o 90-k stopni
+			//obrotObrazu(aktywnyObrazek, 1);
 			printf("\n");
 			break;
 		case 2: // Historiogram
+			histogram(&aktywnyObrazek);
 			printf("\n");
 			break;
-		case 3: // Negatyw
+		case 3: // Odbicie wzgledem osi
+			//odbicieOsi(aktywnyObrazek, 1);
 			printf("\n");
 			break;
 		case 4: // Pieprz i sol
@@ -98,6 +263,31 @@ void przetwarzajAktywnyObraz(struct ObrazekPGM* aktywnyObrazek) {
 			break;
 		}
 	} while (wyborMenuPrzetwarzania != 8);
+}
+
+void pobierzNastepnaLinie(FILE* plik, char** linia) {
+	size_t rozmiar = 100; // Domyœlny rozmiar pocz¹tkowy
+	*linia = (char*)malloc(rozmiar * sizeof(char));
+
+	if (*linia == NULL) {
+		printf("B³¹d alokacji pamiêci\n");
+		return;
+	}
+
+	char* wynik = fgets(*linia, rozmiar, plik);
+	if (wynik == NULL) {
+		free(*linia);
+		return;
+	}
+
+	while ((*linia)[0] == '#') {
+		wynik = fgets(*linia, rozmiar, plik);
+		if (wynik == NULL) {
+			free(*linia);
+			return;
+		}
+	}
+	return;
 }
 
 // Funkcja do odczytu danych z pliku PGM
@@ -127,25 +317,16 @@ void wczytajObraz(struct ObrazekPGM* obrazek) {
 
 	strcpy(obrazek->nazwaPliku, buf);
 
-	char linia[100];
-	while (fgets(linia, sizeof(linia), plik) != NULL) {
-		if (!(linia[0] == '#'))
-		{
-			break; // Jeœli linia nie jest komentarzem, przerywamy pêtlê
-		}
-	}
+	char* linia;
+
+	pobierzNastepnaLinie(plik, &linia);
 	if (sscanf(linia, "%d %d", &obrazek->szerokosc, &obrazek->wysokosc) != 2)
 	{
 		printf("Blad pliku PGM");
 		return;
 	};
 
-	while (fgets(linia, sizeof(linia), plik) != NULL) {
-		if (!(linia[0] == '#'))
-		{
-			break; // Jeœli linia nie jest komentarzem, przerywamy pêtlê
-		}
-	}
+	pobierzNastepnaLinie(plik, &linia);
 	if (sscanf(linia, "%d", &obrazek->skalaSzarosci) != 1)
 	{
 		printf("Blad pliku PGM");
@@ -161,15 +342,21 @@ void wczytajObraz(struct ObrazekPGM* obrazek) {
 			obrazek->piksele[i] = (int*)malloc(obrazek->szerokosc * sizeof(int));
 			if (obrazek->piksele[i] != NULL)
 			{
-				do fgets(linia, sizeof(linia), plik);
-				while ((linia[0] == '#'));
-				obrazek->piksele[i] = (int*)malloc(obrazek->szerokosc * sizeof(int));
-				char* ptr = linia; // Ustawienie wskaŸnika pomocniczego na pocz¹tku linii
+				pobierzNastepnaLinie(plik, &linia);
 				int index = 0;
+				int tempDigit = 0;
 				for (int j = 0; j < obrazek->szerokosc; j++) {
-					sscanf(ptr, "%d%n", &obrazek->piksele[i][j], &index);
-					//printf("Odczyt[%d][%d]: %d\n", i, j, obrazek->piksele[i][j]);
-					ptr += index;
+					int scan = sscanf(linia, "%d%n", &tempDigit, &index);
+					if (scan != 1)
+					{
+						pobierzNastepnaLinie(plik, &linia);
+						j--;
+					}
+					else 
+					{
+						obrazek->piksele[i][j] = tempDigit;
+						linia += index;
+					}
 				}
 			}
 		}
@@ -177,6 +364,10 @@ void wczytajObraz(struct ObrazekPGM* obrazek) {
 }
 
 void dodajObrazDoGalerii(struct Galeria* galeria, struct ObrazekPGM obraz) {
+	for (int i = 0; i < (galeria)->iloscObrazow; i++)
+	{
+		if (strcmp(galeria->obrazy[i].nazwaPliku, obraz.nazwaPliku) == 0) return;
+	}
 	if ((galeria)->iloscObrazow == 0) {
 		(galeria)->obrazy = (struct ObrazekPGM*)malloc(sizeof(struct ObrazekPGM));
 		if ((galeria)->obrazy == NULL) {
@@ -191,10 +382,6 @@ void dodajObrazDoGalerii(struct Galeria* galeria, struct ObrazekPGM obraz) {
 			return;
 		}
 		(galeria)->obrazy = nowe_obrazy;
-	}
-	for (int i = 0; i < (galeria)->iloscObrazow; i++)
-	{
-		if (strcmp(galeria->obrazy[i].nazwaPliku, obraz.nazwaPliku) == 0) return;
 	}
 	(galeria)->obrazy[(galeria)->iloscObrazow] = obraz;
 	(galeria)->iloscObrazow += 1;
