@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 // Struktura przechowuj¹ca informacje o obrazku PGM
 struct ObrazekPGM {
@@ -52,9 +53,10 @@ void wyswietlMenuPrzetwarzania(struct ObrazekPGM* aktywnyObrazek)
 	printf("4. Pieprz i sol                \n");
 	printf("5. Filtr Gaussa                \n");
 	printf("6. Cofnij zmiany               \n");
-	printf("7. Zapisz zmiany               \n");
-	printf("8. Wyjdz do Menu Galerii       \n");
-	printf("Wybierz opcje (1-8): ");
+	printf("7. Zapisz                      \n");
+	printf("8. Zapisz jako                 \n");
+	printf("9. Wyjdz do Menu Galerii       \n");
+	printf("Wybierz opcje (1-9): ");
 }
 
 //void obrotObrazu(struct obrazekPGM* obrazek, int wybor)
@@ -162,7 +164,7 @@ void histogram(struct ObrazekPGM* obrazek)
 	}
 
 	fclose(plik);
-	printf("Histogram zosta³ zapisany do pliku %s.\n", nazwa);
+	printf("Histogram zostal zapisany do pliku %s.\n", nazwa);
 }
 
 //void odbicieOsi(struct obrazekPGM* obrazek, int wybor)
@@ -219,8 +221,50 @@ void histogram(struct ObrazekPGM* obrazek)
 //	}
 //}
 
+void kopjujObraz(struct ObrazekPGM* zrodlo, struct ObrazekPGM* target) {
+	target->szerokosc = zrodlo->szerokosc;
+	target->wysokosc = zrodlo->wysokosc;
+	target->skalaSzarosci = zrodlo->skalaSzarosci;
+
+	// Alokacja pamiêci dla pikseli tylko jeœli nie by³a wczeœniej zaalokowana
+	if (target->piksele != NULL) {
+		target->piksele = (int**)malloc(zrodlo->wysokosc * sizeof(int*));
+		if (target->piksele == NULL) {
+			printf("B³¹d alokacji pamiêci\n");
+			return;
+		}
+	}
+	for (int i = 0; i < zrodlo->wysokosc; i++) {
+		if (target->piksele[i] != NULL) {
+			target->piksele[i] = (int**)malloc(zrodlo->wysokosc * sizeof(int*));
+			if (target->piksele[i] == NULL) {
+				printf("B³¹d alokacji pamiêci\n");
+				return;
+			}
+		}
+		
+		//if (target->piksele[i] == NULL) {
+		//// Zwolnienie zaalokowanej pamiêci
+		//for (int j = 0; j < i; j++) {
+		//	free(target->piksele[j]);
+		//}
+		//free(target->piksele);
+		//printf("B³¹d alokacji pamiêci\n");
+		//return;
+		//}
+		memcpy(target->piksele[i], zrodlo->piksele[i], zrodlo->szerokosc * sizeof(int));
+		//for (int j = 0; j < target->szerokosc; j++) {
+		//	printf("test: %d", target->piksele[i][j]);
+		//}
+	}
+	strcpy((target)->nazwaPliku, (zrodlo)->nazwaPliku);
+}
+
+
 void przetwarzajAktywnyObraz(struct ObrazekPGM* aktywnyObrazek) {
 	int wyborMenuPrzetwarzania = 0;
+	struct ObrazekPGM kopiaObrazka;
+	kopjujObraz(aktywnyObrazek, &kopiaObrazka);
 	do {
 		wyswietlMenuPrzetwarzania(/*gwiazdki, galeriaJ.iloscObrazow, */aktywnyObrazek);
 		while (scanf("%d", &wyborMenuPrzetwarzania) != 1)
@@ -231,15 +275,15 @@ void przetwarzajAktywnyObraz(struct ObrazekPGM* aktywnyObrazek) {
 		}
 		switch (wyborMenuPrzetwarzania) {
 		case 1: // Obrot o 90-k stopni
-			//obrotObrazu(aktywnyObrazek, 1);
+			//obrotObrazu(&kopiaObrazka, 1);
 			printf("\n");
 			break;
 		case 2: // Historiogram
-			histogram(&aktywnyObrazek);
+			histogram(&kopiaObrazka);
 			printf("\n");
 			break;
 		case 3: // Odbicie wzgledem osi
-			//odbicieOsi(aktywnyObrazek, 1);
+			//odbicieOsi(&kopiaObrazka, 1);
 			printf("\n");
 			break;
 		case 4: // Pieprz i sol
@@ -249,20 +293,34 @@ void przetwarzajAktywnyObraz(struct ObrazekPGM* aktywnyObrazek) {
 			printf("\n");
 			break;
 		case 6: // Cofnij zmiany
-			printf("\n");
+			kopjujObraz(aktywnyObrazek, &kopiaObrazka);
+			//kopiaObrazka = aktywnyObrazek;
 			break;
-		case 7: // Zapisz zmiany
-			printf("\n");
+		case 7: // Zapisz 
+			kopjujObraz(&kopiaObrazka, aktywnyObrazek);
+			printf("Obraz zostal zapisany do galerii.\n");
+			wyborMenuPrzetwarzania = 9;
 			break;
-		case 8: // Wyjdz do Menu Galerii
+		case 8: // Zapisz jako
+			printf("Podaj nazwe pliku: ");
+			char nazwa[20];
+			scanf("%20s", nazwa);
+			char buf[30];
+			snprintf(buf, sizeof(nazwa) + 5, "%s.pgm", nazwa);
+			kopjujObraz(&kopiaObrazka, aktywnyObrazek);
+			strcpy(aktywnyObrazek->nazwaPliku, buf);
+			printf("Obraz zostal zapisany do galerii.\n");
+			wyborMenuPrzetwarzania = 9;
+			break;
+		case 9: // Wyjdz do Menu Galerii
 			printf("\n");
 			break;
 		default:
-			printf("Nieprawidlowy wybor. Wybierz opcje od 1 do 8.\n");
+			printf("Nieprawidlowy wybor. Wybierz opcje od 1 do 9.\n");
 			printf("\n");
 			break;
 		}
-	} while (wyborMenuPrzetwarzania != 8);
+	} while (wyborMenuPrzetwarzania != 9);
 }
 
 void pobierzNastepnaLinie(FILE* plik, char** linia) {
@@ -299,7 +357,7 @@ void wczytajObraz(struct ObrazekPGM* obrazek) {
 
 	char buf[0x26]; //to ma przyjac nazwe +PGM
 	//do bufforu nastepuje przypisuje pamiec nazwa + 5 jednostek pamieci na .PGMEOF
-	snprintf(buf, sizeof(nazwa) + 5, "%s.PGM", nazwa);
+	snprintf(buf, sizeof(nazwa) + 5, "%s.pgm", nazwa);
 	FILE* plik = fopen(buf, "r");
 	if (plik == NULL)
 	{
@@ -363,7 +421,18 @@ void wczytajObraz(struct ObrazekPGM* obrazek) {
 	}
 }
 
+bool obrazWGalerii(struct Galeria* galeria, struct ObrazekPGM obraz)
+{
+	for (int i = 0; i < (galeria)->iloscObrazow; i++)
+	{
+		if (strcmp(galeria->obrazy[i].nazwaPliku, obraz.nazwaPliku) == 0) 
+			return true;
+	}
+	return false;
+}
+
 void dodajObrazDoGalerii(struct Galeria* galeria, struct ObrazekPGM obraz) {
+	if (obrazWGalerii(galeria, obraz)) return;
 	for (int i = 0; i < (galeria)->iloscObrazow; i++)
 	{
 		if (strcmp(galeria->obrazy[i].nazwaPliku, obraz.nazwaPliku) == 0) return;
@@ -406,6 +475,11 @@ void usunObrazZGalerii(struct Galeria* galeria, int* indeks) {
 		printf("B³¹d realokacji pamiêci\n");
 		return;
 	}
+}
+
+void nadpiszObrazWGalerii(struct Galeria* galeria, int* indeks, struct ObrazekPGM obraz) 
+{
+	(galeria)->obrazy[*indeks] = obraz;
 }
 
 void wypiszNazwyObrazow(struct Galeria* galeria) {
@@ -513,7 +587,17 @@ int main() {
 			break;
 		case 3: // Przetwarzaj aktywny obraz
 			przetwarzajAktywnyObraz(&aktywnyObrazek);
-			printf("\n");
+			// zapisz do galerii bez weryfikacji nazwy
+			printf("Nazwa Pliku: %s\n", aktywnyObrazek.nazwaPliku);
+			if (obrazWGalerii(&galeriaJ, aktywnyObrazek))
+			{
+				galeriaJ.obrazy[indeksAktywnyObraz - 1] = aktywnyObrazek;
+				//nadpiszObrazWGalerii(&galeriaJ, &indeksAktywnyObraz, aktywnyObrazek);
+			}
+			else
+			{
+				dodajObrazDoGalerii(&galeriaJ, aktywnyObrazek);
+			}
 			break;
 		case 4: // Zamknij aktywny obraz 
 			zamknijAktywnyObraz(&aktywnyObrazek, &indeksAktywnyObraz);
