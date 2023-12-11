@@ -349,7 +349,7 @@ void pobierzNastepnaLinie(FILE* plik, char** linia) {
 }
 
 // Funkcja do odczytu danych z pliku PGM
-void wczytajObraz(struct ObrazekPGM* obrazek) {
+bool wczytajObraz(struct ObrazekPGM* obrazek) {
 
 	char nazwa[20];
 	printf("Podaj nazwe pliku PGM do wczytania: ");
@@ -362,7 +362,7 @@ void wczytajObraz(struct ObrazekPGM* obrazek) {
 	if (plik == NULL)
 	{
 		printf("\nBlad otwarcia pliku.\n");
-		return;
+		return false;
 	}
 	char standard[3];
 	fscanf(plik, "%s\n", standard);
@@ -370,7 +370,7 @@ void wczytajObraz(struct ObrazekPGM* obrazek) {
 	{
 		printf("Niewlasciwy standard obrazu");
 		fclose(plik);
-		return;
+		return false;
 	}
 
 	strcpy(obrazek->nazwaPliku, buf);
@@ -381,14 +381,14 @@ void wczytajObraz(struct ObrazekPGM* obrazek) {
 	if (sscanf(linia, "%d %d", &obrazek->szerokosc, &obrazek->wysokosc) != 2)
 	{
 		printf("Blad pliku PGM");
-		return;
+		return false;
 	};
 
 	pobierzNastepnaLinie(plik, &linia);
 	if (sscanf(linia, "%d", &obrazek->skalaSzarosci) != 1)
 	{
 		printf("Blad pliku PGM");
-		return;
+		return false;
 	};
 
 	printf("Szerokosc: %d, Wysokosc: %d, Szarosc: %d\n", obrazek->szerokosc, obrazek->wysokosc, obrazek->skalaSzarosci);
@@ -419,6 +419,7 @@ void wczytajObraz(struct ObrazekPGM* obrazek) {
 			}
 		}
 	}
+	return true;
 }
 
 bool obrazWGalerii(struct Galeria* galeria, struct ObrazekPGM obraz)
@@ -526,7 +527,6 @@ int main() {
 	galeriaJ.iloscObrazow = 0;
 	galeriaJ.obrazy = (struct ObrazekPGM*)malloc(sizeof(struct ObrazekPGM));
 
-
 	do
 	{
 		wyswietlMenu(gwiazdki, galeriaJ.iloscObrazow, aktywnyObrazek.nazwaPliku);
@@ -536,93 +536,106 @@ int main() {
 			scanf("%*[^\n]");
 			printf("\n");
 		}
-
-		switch (wyborMenu) {
-		case 1: // Pobierz nowy obraz z pliku do galerii  
-			wczytajObraz(&wczytanyObrazek);
-			//printf("Nazwa pliku: %s\n", wczytanyObrazek.nazwaPliku);
-			//printf("Szerokosc: %d\n", wczytanyObrazek.szerokosc);
-			//printf("Wysokosc: %d\n", wczytanyObrazek.wysokosc);
-			//printf("Skala szarosci: %d\n", wczytanyObrazek.skalaSzarosci);
-			//
-			//printf("XXXXXXXXX\n");
-			//for (int i = 0; i < wczytanyObrazek.wysokosc; i++) {
-			//	for (int j = 0; j < wczytanyObrazek.szerokosc; j++) {
-			//		printf("%d ", wczytanyObrazek.piksele[i][j]);
-			//	}
-			//	printf("\n");
-			//}
-			//printf("XXXXXXXXX\n");
-			dodajObrazDoGalerii(&galeriaJ, wczytanyObrazek);
-			//printf("Nazwa pliku: %s\n", galeriaJ.obrazy[0].nazwaPliku);
-			//printf("Szerokosc: %d\n", galeriaJ.obrazy[0].szerokosc);
-			//printf("Wysokosc: %d\n", galeriaJ.obrazy[0].wysokosc);
-			//printf("Skala szarosci: %d\n", galeriaJ.obrazy[0].skalaSzarosci);
-			//printf("XXXXXXXXX\n");
-			//for (int i = 0; i < galeriaJ.obrazy[0].wysokosc; i++) {
-			//	for (int j = 0; j < galeriaJ.obrazy[0].szerokosc; j++) {
-			//		printf("%d ", galeriaJ.obrazy[0].piksele[i][j]);
-			//	}
-			//	printf("\n");
-			//}
-			//printf("XXXXXXXXX\n");
-			printf("\n");
-			break;
-		case 2: // Ustaw aktywny obraz
-			wypiszNazwyObrazow(&galeriaJ);
-			ustawAktywnyObraz(&galeriaJ, &indeksAktywnyObraz, &aktywnyObrazek);
-			printf("\nNazwa pliku: %s\n", aktywnyObrazek.nazwaPliku);
-			printf("Szerokosc: %d\n", aktywnyObrazek.szerokosc);
-			printf("Wysokosc: %d\n", aktywnyObrazek.wysokosc);
-			printf("Skala szarosci: %d\n", aktywnyObrazek.skalaSzarosci);
-			printf("XXXXXXXXX\n");
-			for (int i = 0; i < aktywnyObrazek.wysokosc; i++) {
-				for (int j = 0; j < aktywnyObrazek.szerokosc; j++) {
-					printf("%d ", aktywnyObrazek.piksele[i][j]);
+		if (!(wyborMenu != 1 && galeriaJ.iloscObrazow == 0))
+		{
+			switch (wyborMenu) {
+			case 1: // Pobierz nowy obraz z pliku do galerii  
+				printf("\n");
+				bool obrazWczytanyPoprawnie = wczytajObraz(&wczytanyObrazek);
+				if (obrazWczytanyPoprawnie) dodajObrazDoGalerii(&galeriaJ, wczytanyObrazek);
+				printf("\n");
+				break;
+			case 2: // Ustaw aktywny obraz
+				if (galeriaJ.iloscObrazow > 0)
+				{
+					wypiszNazwyObrazow(&galeriaJ);
+					ustawAktywnyObraz(&galeriaJ, &indeksAktywnyObraz, &aktywnyObrazek);
+					printf("\nNazwa pliku: %s\n", aktywnyObrazek.nazwaPliku);
+					printf("Szerokosc: %d\n", aktywnyObrazek.szerokosc);
+					printf("Wysokosc: %d\n", aktywnyObrazek.wysokosc);
+					printf("Skala szarosci: %d\n", aktywnyObrazek.skalaSzarosci);
+					printf("XXXXXXXXX\n");
+					for (int i = 0; i < aktywnyObrazek.wysokosc; i++) {
+						for (int j = 0; j < aktywnyObrazek.szerokosc; j++) {
+							printf("%d ", aktywnyObrazek.piksele[i][j]);
+						}
+						printf("\n");
+					}
+					printf("XXXXXXXXX\n\n");
+				}
+				else printf("Brak obrazow w galerii. Dodaj nowy obraz.\n\n");
+				break;
+			case 3: // Przetwarzaj aktywny obraz
+				if (indeksAktywnyObraz == 0)
+				{
+					printf("\nBrak wybranego aktywnego obrazu.\n");
+				}
+				else
+				{
+					przetwarzajAktywnyObraz(&aktywnyObrazek);
+					// zapisz do galerii bez weryfikacji nazwy
+					printf("Nazwa Pliku: %s\n", aktywnyObrazek.nazwaPliku);
+					if (obrazWGalerii(&galeriaJ, aktywnyObrazek))
+					{
+						galeriaJ.obrazy[indeksAktywnyObraz - 1] = aktywnyObrazek;
+						//nadpiszObrazWGalerii(&galeriaJ, &indeksAktywnyObraz, aktywnyObrazek);
+					}
+					else
+					{
+						dodajObrazDoGalerii(&galeriaJ, aktywnyObrazek);
+					}
+				}
+				break;
+			case 4: // Zamknij aktywny obraz 
+				if (indeksAktywnyObraz == 0)
+				{
+					printf("\nBrak wybranego aktywnego obrazu.\n");
+				}
+				else
+				{
+					zamknijAktywnyObraz(&aktywnyObrazek, &indeksAktywnyObraz);
+					printf("\n");
+				}
+				break;
+			case 5: // Usun obraz z galerii  
+				wypiszNazwyObrazow(&galeriaJ);
+				usunObrazZGalerii(&galeriaJ, &indeksUsunObraz);
+				if (indeksAktywnyObraz == indeksUsunObraz)
+				{
+					zamknijAktywnyObraz(&aktywnyObrazek, &indeksAktywnyObraz);
 				}
 				printf("\n");
+				break;
+			case 6: // Zakoncz program  
+				printf("Program zostal zakonczony.\n");
+				printf("\n");
+				break;
+			default:
+				printf("Nieprawidlowy wybor. Wybierz opcje od 1 do 6.\n");
+				printf("\n");
+				break;
 			}
-			printf("XXXXXXXXX\n");
-			printf("\n");
-			break;
-		case 3: // Przetwarzaj aktywny obraz
-			przetwarzajAktywnyObraz(&aktywnyObrazek);
-			// zapisz do galerii bez weryfikacji nazwy
-			printf("Nazwa Pliku: %s\n", aktywnyObrazek.nazwaPliku);
-			if (obrazWGalerii(&galeriaJ, aktywnyObrazek))
-			{
-				galeriaJ.obrazy[indeksAktywnyObraz - 1] = aktywnyObrazek;
-				//nadpiszObrazWGalerii(&galeriaJ, &indeksAktywnyObraz, aktywnyObrazek);
-			}
-			else
-			{
-				dodajObrazDoGalerii(&galeriaJ, aktywnyObrazek);
-			}
-			break;
-		case 4: // Zamknij aktywny obraz 
-			zamknijAktywnyObraz(&aktywnyObrazek, &indeksAktywnyObraz);
-			printf("\n");
-			break;
-		case 5: // Usun obraz z galerii  
-			wypiszNazwyObrazow(&galeriaJ);
-			usunObrazZGalerii(&galeriaJ, &indeksUsunObraz);
-			if (indeksAktywnyObraz == indeksUsunObraz)
-			{
-				zamknijAktywnyObraz(&aktywnyObrazek, &indeksAktywnyObraz);
-			}
-			printf("\n");
-			break;
-		case 6: // Zakoncz program  
-			printf("Program zostal zakonczony.\n");
-			printf("\n");
-			break;
-		default:
-			printf("Nieprawidlowy wybor. Wybierz opcje od 1 do 6.\n");
-			printf("\n");
-			break;
+		}
+		else if (wyborMenu != 6)
+		{
+			printf("\nBrak obrazow dodanych do Galerii.\nNajpier dodaj nowy obraz.\n\n");
 		}
 	} while (wyborMenu != 6);
-
+	printf("\nDziekujemy za odwiedzienie Galerii \"J\".\nDo Zobaczenia.\n");
 	// Na koniec zwolnij pamiêæ zaalokowan¹ dla tablicy pikseli
 	return 0;
 }
+
+//printf("Nazwa pliku: %s\n", wczytanyObrazek.nazwaPliku);
+//printf("Szerokosc: %d\n", wczytanyObrazek.szerokosc);
+//printf("Wysokosc: %d\n", wczytanyObrazek.wysokosc);
+//printf("Skala szarosci: %d\n", wczytanyObrazek.skalaSzarosci);
+//
+//printf("XXXXXXXXX\n");
+//for (int i = 0; i < wczytanyObrazek.wysokosc; i++) {
+//	for (int j = 0; j < wczytanyObrazek.szerokosc; j++) {
+//		printf("%d ", wczytanyObrazek.piksele[i][j]);
+//	}
+//	printf("\n");
+//}
+//printf("XXXXXXXXX\n");
