@@ -33,9 +33,10 @@ void wyswietlMenu(char* gwiazdki, int iloscObrazow, char* aktywnyNazwa)
 	printf("2. Ustaw aktywny obraz                           [%c]\n", gwiazdki[1]);
 	printf("3. Przetwarzaj aktywny obraz                     [%c]\n", gwiazdki[2]);
 	printf("4. Zamknij aktywny obraz                         [%c]\n", gwiazdki[3]);
-	printf("5. Usun obraz z galerii                          [%c]\n", gwiazdki[4]);
-	printf("6. Zakoncz program                               [%c]\n", gwiazdki[5]);
-	printf("Wybierz opcje (1-6): ");
+	printf("5. Exportuj obraz do pliku PGM                   [%c]\n", gwiazdki[4]);
+	printf("6. Usun obraz z galerii                          [%c]\n", gwiazdki[4]);
+	printf("7. Zakoncz program                               [%c]\n", gwiazdki[5]);
+	printf("Wybierz opcje (1-7): ");
 }
 
 void wyswietlMenuPrzetwarzania(struct ObrazekPGM* aktywnyObrazek)
@@ -53,7 +54,7 @@ void wyswietlMenuPrzetwarzania(struct ObrazekPGM* aktywnyObrazek)
 	printf("4. Pieprz i sol                \n");
 	printf("5. Filtr Gaussa                \n");
 	printf("6. Cofnij zmiany               \n");
-	printf("7. Zapisz                      \n");
+	printf("7. Zapisz                     \n");
 	printf("8. Zapisz jako                 \n");
 	printf("9. Wyjdz do Menu Galerii       \n");
 	printf("Wybierz opcje (1-9): ");
@@ -492,10 +493,17 @@ void wypiszNazwyObrazow(struct Galeria* galeria) {
 
 void ustawAktywnyObraz(struct Galeria* galeria, int* indeks, struct ObrazekPGM* aktywnyObraz) {
 	do {
-		printf("Wybierz aktywny obraz: ");
-		scanf("%d", indeks);
+		printf("Wybierz aktywny obraz (CYFRA): ");
+		//scanf("%d", indeks);
+
+		while (scanf("%d", indeks) != 1)
+		{
+			printf("!!! BLAD !!! Podaj cyfre: ");
+			scanf("%*[^\n]");
+		}
+
 		if (*indeks < 1 || *indeks > galeria->iloscObrazow) {
-			printf("Nieprawidlowy numer obrazu. Podaj liczbe z zakresu 1-%d\n", galeria->iloscObrazow);
+			printf("Nieprawidlowy numer obrazu. Podaj liczbe z zakresu od 1 do %d\n", galeria->iloscObrazow);
 		}
 	} while (*indeks < 1 || *indeks > galeria->iloscObrazow);
 
@@ -597,7 +605,13 @@ int main() {
 					printf("\n");
 				}
 				break;
-			case 5: // Usun obraz z galerii  
+			case 5: //export do pliku .pgm
+				if (galeriaJ.iloscObrazow > 0)
+				{
+					wypiszNazwyObrazow(&galeriaJ);
+				}
+				break;
+			case 6: // Usun obraz z galerii  
 				wypiszNazwyObrazow(&galeriaJ);
 				usunObrazZGalerii(&galeriaJ, &indeksUsunObraz);
 				if (indeksAktywnyObraz == indeksUsunObraz)
@@ -606,21 +620,21 @@ int main() {
 				}
 				printf("\n");
 				break;
-			case 6: // Zakoncz program  
+			case 7: // Zakoncz program  
 				printf("Program zostal zakonczony.\n");
 				printf("\n");
 				break;
 			default:
-				printf("Nieprawidlowy wybor. Wybierz opcje od 1 do 6.\n");
+				printf("Nieprawidlowy wybor. Wybierz opcje od 1 do 7.\n");
 				printf("\n");
 				break;
 			}
 		}
-		else if (wyborMenu != 6)
+		else if (wyborMenu != 7)
 		{
 			printf("\nBrak obrazow dodanych do Galerii.\nNajpier dodaj nowy obraz.\n\n");
 		}
-	} while (wyborMenu != 6);
+	} while (wyborMenu != 7);
 	printf("\nDziekujemy za odwiedzienie Galerii \"J\".\nDo Zobaczenia.\n");
 	// Na koniec zwolnij pamiêæ zaalokowan¹ dla tablicy pikseli
 	return 0;
