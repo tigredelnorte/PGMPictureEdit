@@ -325,7 +325,7 @@ void przetwarzajAktywnyObraz(struct ObrazekPGM* aktywnyObrazek) {
 }
 
 void pobierzNastepnaLinie(FILE* plik, char** linia) {
-	size_t rozmiar = 100; // Domyœlny rozmiar pocz¹tkowy
+	size_t rozmiar = 1000; // Domyœlny rozmiar pocz¹tkowy
 	*linia = (char*)malloc(rozmiar * sizeof(char));
 
 	if (*linia == NULL) {
