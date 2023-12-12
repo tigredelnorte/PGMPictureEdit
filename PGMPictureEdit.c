@@ -167,95 +167,24 @@ void doHistogramu(struct ObrazekPGM obrazek)
 	printf("Histogram zostal zapisany do pliku %s.csv\n", nazwa);
 }
 
-//void odbicieOsi(struct obrazekPGM* obrazek, int wybor)
-//{
-//
-//	printf("Podaj oœ wzglêdem której obraz bêdzie odbity: \n");
-//	do
-//	{
-//		printf("Wzglêdem osi X: 1.\n Wzglêdem osi Y: 2 \n");
-//
-//		while (scanf("%d", &wybor) != 1)
-//		{
-//			printf("!!! BLAD !!!\nWybierz opcje 1 lub 2");
-//			scanf("%*[^\n]");
-//		}
-//		if (!(wybor == 1 || wybor == 2))
-//			printf("\nBLAD Sproboj ponownie\n");
-//		int temp = 0;
-//		if (wybor == 1)
-//		{
-//			//zmiana piksela wewnatrz kazdego wiersza
-//			for (int i = 0; i < obrazek->wysokosc / 2; i++)
-//			{
-//				for (int j = 0; j < obrazek->szerokosc; j++)
-//				{
-//					int temp = obrazek->piksele[i][j];
-//					obrazek->piksele[i][j] = obrazek->piksele[obrazek->wysokosc - 1 - i][j];
-//					obrazek->piksele[obrazek->wysokosc - 1 - i][j] = temp;
-//				}
-//			}
-//		}
-//		else
-//		{
-//			for (int i = 0; i < obrazek->wysokosc; i++)
-//			{
-//				for (int j = 0; j < obrazek->szerokosc / 2; j++)
-//				{
-//					int temp = obrazek->piksele[i][j];
-//					obrazek->piksele[i][j] = obrazek->piksele[i][obrazek->szerokosc - 1 - j];
-//					obrazek->piksele[i][obrazek->szerokosc - 1 - j] = temp;
-//				}
-//			}
-//		}
-//	} while (!(wybor == 1 || wybor == 2));
-//
-//	printf("Wyœwietlony obraz");
-//	for (int i = 0; i < obrazek->wysokosc; i++)
-//	{
-//		for (int j = 0; j < obrazek->szerokosc; j++)
-//		{
-//			printf("%d ", obrazek->piksele[i][j]);
-//		}
-//		printf("\n");
-//	}
-//}
-
 void kopiujObraz(struct ObrazekPGM* zrodlo, struct ObrazekPGM* target) {
 	target->szerokosc = zrodlo->szerokosc;
 	target->wysokosc = zrodlo->wysokosc;
 	target->skalaSzarosci = zrodlo->skalaSzarosci;
 
 	// Alokacja pamiêci dla pikseli tylko jeœli nie by³a wczeœniej zaalokowana
-	if (target->piksele != NULL) {
-		target->piksele = (int**)malloc(zrodlo->wysokosc * sizeof(int*));
-		if (target->piksele == NULL) {
+	target->piksele = (int**)malloc(zrodlo->wysokosc * sizeof(int*));
+	if (target->piksele == NULL) {
+		printf("B³¹d alokacji pamiêci\n");
+		return;
+	}
+	for (int i = 0; i < zrodlo->wysokosc; i++) {
+		target->piksele[i] = (int*)malloc(zrodlo->szerokosc * sizeof(int));
+		if (target->piksele[i] == NULL) {
 			printf("B³¹d alokacji pamiêci\n");
 			return;
 		}
-	}
-	for (int i = 0; i < zrodlo->wysokosc; i++) {
-		if (target->piksele[i] != NULL) {
-			target->piksele[i] = (int*)malloc(zrodlo->szerokosc * sizeof(int));
-			if (target->piksele[i] == NULL) {
-				printf("B³¹d alokacji pamiêci\n");
-				return;
-			}
-		}
-		
-		//if (target->piksele[i] == NULL) {
-		//// Zwolnienie zaalokowanej pamiêci
-		//for (int j = 0; j < i; j++) {
-		//	free(target->piksele[j]);
-		//}
-		//free(target->piksele);
-		//printf("B³¹d alokacji pamiêci\n");
-		//return;
-		//}
 		memcpy(target->piksele[i], zrodlo->piksele[i], zrodlo->szerokosc * sizeof(int));
-		//for (int j = 0; j < target->szerokosc; j++) {
-		//	printf("test: %d", target->piksele[i][j]);
-		//}
 	}
 	strcpy((target)->nazwaPliku, (zrodlo)->nazwaPliku);
 }
