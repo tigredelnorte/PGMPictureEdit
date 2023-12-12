@@ -511,6 +511,25 @@ void ustawAktywnyObraz(struct Galeria* galeria, int* indeks, struct ObrazekPGM* 
 	*aktywnyObraz = galeria->obrazy[*indeks - 1];
 }
 
+int wybierzDoEksportu(int iloscObrazow) {
+	int indeks = 0;
+	do {
+		printf("Wybierz obraz do zapisania do pliku PGM (CYFRA): ");
+		//scanf("%d", indeks);
+
+		while (scanf("%d", &indeks) != 1)
+		{
+			printf("!!! BLAD !!! Podaj cyfre: ");
+			scanf("%*[^\n]");
+		}
+
+		if (indeks < 1 || indeks > iloscObrazow) {
+			printf("Nieprawidlowy numer obrazu. Podaj liczbe z zakresu od 1 do %d\n", iloscObrazow);
+		}
+	} while (indeks < 1 || indeks > iloscObrazow);
+	return indeks;
+}
+
 void zamknijAktywnyObraz(struct ObrazekPGM* aktywnyObrazek, int* indeks)
 {
 	indeks = NULL;
@@ -518,6 +537,48 @@ void zamknijAktywnyObraz(struct ObrazekPGM* aktywnyObrazek, int* indeks)
 	(*aktywnyObrazek).skalaSzarosci = 0;
 	(*aktywnyObrazek).szerokosc = 0;
 	(*aktywnyObrazek).wysokosc = 0;
+}
+
+void eksportDoPGM(struct ObrazekPGM obrazek)
+{
+	char nazwa[20];
+	char buf[30];
+	bool equal;
+	do
+	{
+		printf("Podaj nazwe pliku: ");
+		scanf("%20s", nazwa);
+		snprintf(buf, sizeof(nazwa) + 5, "%s.pgm", nazwa);
+		equal = strcmp(obrazek.nazwaPliku, buf);
+		if ( equal == 0 )
+		{
+			printf("\nTa sama nazwa co plik zrodlowy. Podaj unikatowa nazwe!");
+		}
+	} while (equal == 0);
+
+	FILE* plik = fopen(buf, "w");
+
+	if (plik != NULL)
+	{
+		fprintf(plik, "P2\n");
+		fprintf(plik, "%d %d\n", obrazek.wysokosc, obrazek.szerokosc);
+		fprintf(plik, "%d\n", obrazek.skalaSzarosci);
+		for (int i = 0; i < obrazek.wysokosc; i++)
+		{
+			for (int j = 0; j < obrazek.szerokosc; j++)
+			{
+				fprintf(plik, "%d ", obrazek.piksele[i][j]);
+			}
+			fprintf(plik, "\n");
+		}
+		fclose(plik);
+		printf("\nDane zosatly pomyslnie zapisane do pliku %s\n\n", buf);
+	}
+	else
+	{
+		printf("\nBlad otwarcia pliku.\n");
+	}
+	scanf("%*[^\n]");
 }
 
 int main() {
@@ -609,6 +670,8 @@ int main() {
 				if (galeriaJ.iloscObrazow > 0)
 				{
 					wypiszNazwyObrazow(&galeriaJ);
+					int eksportIndeks = wybierzDoEksportu(galeriaJ.iloscObrazow);
+					eksportDoPGM(galeriaJ.obrazy[eksportIndeks - 1]);
 				}
 				break;
 			case 6: // Usun obraz z galerii  
