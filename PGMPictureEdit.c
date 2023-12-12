@@ -52,9 +52,9 @@ void wyswietlMenuPrzetwarzania(struct ObrazekPGM* aktywnyObrazek)
 	printf("2. Historiogram                \n");
 	printf("3. Negatyw                     \n");
 	printf("4. Pieprz i sol                \n");
-	printf("5. Filtr Gaussa                \n");
+	printf("5. Filtr Medianowy             \n");
 	printf("6. Cofnij zmiany               \n");
-	printf("7. Zapisz                     \n");
+	printf("7. Zapisz                      \n");
 	printf("8. Zapisz jako                 \n");
 	printf("9. Wyjdz do Menu Galerii       \n");
 	printf("Wybierz opcje (1-9): ");
@@ -236,7 +236,7 @@ void kopiujObraz(struct ObrazekPGM* zrodlo, struct ObrazekPGM* target) {
 	}
 	for (int i = 0; i < zrodlo->wysokosc; i++) {
 		if (target->piksele[i] != NULL) {
-			target->piksele[i] = (int**)malloc(zrodlo->wysokosc * sizeof(int*));
+			target->piksele[i] = (int*)malloc(zrodlo->szerokosc * sizeof(int));
 			if (target->piksele[i] == NULL) {
 				printf("B³¹d alokacji pamiêci\n");
 				return;
@@ -260,6 +260,52 @@ void kopiujObraz(struct ObrazekPGM* zrodlo, struct ObrazekPGM* target) {
 	strcpy((target)->nazwaPliku, (zrodlo)->nazwaPliku);
 }
 
+// Funkcja pomocnicza do sortowania tablicy
+int porownaj(const void* a, const void* b) {
+	return (*(int*)a - *(int*)b);
+}
+
+void filtrMediana(struct ObrazekPGM* obrazek)
+{
+	int** nowePiksele = (int**)malloc(obrazek->wysokosc * sizeof(int*));
+	for (int i = 0; i < obrazek->wysokosc; i++) {
+		nowePiksele[i] = (int*)malloc(obrazek->szerokosc * sizeof(int));
+	}
+
+	int* wartosci = (int*)malloc(9 * sizeof(int)); // Tablica na wartoœci dla okna 3x3
+	for (int i = 1; i < obrazek->wysokosc - 1; i++) {
+		for (int j = 1; j < obrazek->szerokosc - 1; j++) {
+			int k = 0;
+
+			// Wype³nianie tablicy wartosci danymi z okna 3x3
+			for (int x = -1; x <= 1; x++) {
+				for (int y = -1; y <= 1; y++) {
+					wartosci[k++] = obrazek->piksele[i + x][j + y];
+				}
+			}
+
+			// Sortowanie wartoœci
+			qsort(wartosci, 9, sizeof(int), porownaj);
+
+			// Przypisanie wartoœci mediany do nowego piksela
+			nowePiksele[i][j] = wartosci[4];
+		}
+	}
+
+	// Uwzglêdnienie nowych pikseli w strukturze obrazka
+	for (int i = 1; i < obrazek->wysokosc - 1; i++) {
+		for (int j = 1; j < obrazek->szerokosc - 1; j++) {
+			obrazek->piksele[i][j] = nowePiksele[i][j];
+		}
+	}
+
+	// Zwolnienie pamiêci tymczasowej
+	for (int i = 0; i < obrazek->wysokosc; i++) {
+		free(nowePiksele[i]);
+	}
+	free(nowePiksele);
+	free(wartosci);
+}
 
 void przetwarzajAktywnyObraz(struct ObrazekPGM* aktywnyObrazek) {
 	int wyborMenuPrzetwarzania = 0;
@@ -289,8 +335,8 @@ void przetwarzajAktywnyObraz(struct ObrazekPGM* aktywnyObrazek) {
 		case 4: // Pieprz i sol
 			printf("\n");
 			break;
-		case 5: // Filtr Gaussa
-			printf("\n");
+		case 5: // Filtr Mediana
+			filtrMediana(&kopiaObrazka);
 			break;
 		case 6: // Cofnij zmiany
 			kopiujObraz(aktywnyObrazek, &kopiaObrazka);
