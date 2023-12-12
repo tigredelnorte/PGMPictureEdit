@@ -126,21 +126,20 @@ void wyswietlMenuPrzetwarzania(struct ObrazekPGM* aktywnyObrazek)
 //	//}
 //}
 
-void histogram(struct ObrazekPGM* obrazek)
+void doHistogramu(struct ObrazekPGM obrazek)
 {
-	int scale = obrazek->skalaSzarosci;
-	if (obrazek->skalaSzarosci != NULL) {
+	int* histogram;
+	histogram = (int*)malloc(obrazek.skalaSzarosci * sizeof(int));
 
+	for (int i = 0; i < obrazek.skalaSzarosci; i++) {
+		histogram[i] = 0;
 	}
-	//odcienie szarosci
-	int histogram[100];
-	//przechodzenie przez piksele obrazu i zliczanie wartoœci intensywnoœci
-	for (int i = 0; i < obrazek->wysokosc; ++i)
+
+	for (int i = 0; i < obrazek.wysokosc; ++i)
 	{
-		for (int j = 0; j < obrazek->szerokosc; ++j)
+		for (int j = 0; j < obrazek.szerokosc; ++j)
 		{
-			int szarosc = obrazek->piksele[i][j];
-			histogram[szarosc]++;
+			(histogram[obrazek.piksele[i][j]])++;
 		}
 	}
 	
@@ -158,14 +157,14 @@ void histogram(struct ObrazekPGM* obrazek)
 
 	// Zapis do pliku CSV
 	//tab w excel
-	fprintf(plik, "Szarosc,Piksele\n");
-	for (int i = 0; i < 1000; ++i)
+	fprintf(plik, "Szarosc, Piksele\n");
+	for (int i = 0; i < obrazek.skalaSzarosci; ++i)
 	{
-		fprintf(plik, "%d,%d\n", i, histogram[i]);
+		fprintf(plik, "%d, %d\n", i, histogram[i]);
 	}
 
 	fclose(plik);
-	printf("Histogram zostal zapisany do pliku %s.\n", nazwa);
+	printf("Histogram zostal zapisany do pliku %s.csv\n", nazwa);
 }
 
 //void odbicieOsi(struct obrazekPGM* obrazek, int wybor)
@@ -222,7 +221,7 @@ void histogram(struct ObrazekPGM* obrazek)
 //	}
 //}
 
-void kopjujObraz(struct ObrazekPGM* zrodlo, struct ObrazekPGM* target) {
+void kopiujObraz(struct ObrazekPGM* zrodlo, struct ObrazekPGM* target) {
 	target->szerokosc = zrodlo->szerokosc;
 	target->wysokosc = zrodlo->wysokosc;
 	target->skalaSzarosci = zrodlo->skalaSzarosci;
@@ -265,7 +264,7 @@ void kopjujObraz(struct ObrazekPGM* zrodlo, struct ObrazekPGM* target) {
 void przetwarzajAktywnyObraz(struct ObrazekPGM* aktywnyObrazek) {
 	int wyborMenuPrzetwarzania = 0;
 	struct ObrazekPGM kopiaObrazka;
-	kopjujObraz(aktywnyObrazek, &kopiaObrazka);
+	kopiujObraz(aktywnyObrazek, &kopiaObrazka);
 	do {
 		wyswietlMenuPrzetwarzania(/*gwiazdki, galeriaJ.iloscObrazow, */aktywnyObrazek);
 		while (scanf("%d", &wyborMenuPrzetwarzania) != 1)
@@ -279,8 +278,8 @@ void przetwarzajAktywnyObraz(struct ObrazekPGM* aktywnyObrazek) {
 			//obrotObrazu(&kopiaObrazka, 1);
 			printf("\n");
 			break;
-		case 2: // Historiogram
-			histogram(&kopiaObrazka);
+		case 2: // Histogram
+			doHistogramu(kopiaObrazka);
 			printf("\n");
 			break;
 		case 3: // Odbicie wzgledem osi
@@ -294,11 +293,11 @@ void przetwarzajAktywnyObraz(struct ObrazekPGM* aktywnyObrazek) {
 			printf("\n");
 			break;
 		case 6: // Cofnij zmiany
-			kopjujObraz(aktywnyObrazek, &kopiaObrazka);
+			kopiujObraz(aktywnyObrazek, &kopiaObrazka);
 			//kopiaObrazka = aktywnyObrazek;
 			break;
 		case 7: // Zapisz 
-			kopjujObraz(&kopiaObrazka, aktywnyObrazek);
+			kopiujObraz(&kopiaObrazka, aktywnyObrazek);
 			printf("Obraz zostal zapisany do galerii.\n");
 			wyborMenuPrzetwarzania = 9;
 			break;
@@ -308,7 +307,7 @@ void przetwarzajAktywnyObraz(struct ObrazekPGM* aktywnyObrazek) {
 			scanf("%20s", nazwa);
 			char buf[30];
 			snprintf(buf, sizeof(nazwa) + 5, "%s.pgm", nazwa);
-			kopjujObraz(&kopiaObrazka, aktywnyObrazek);
+			kopiujObraz(&kopiaObrazka, aktywnyObrazek);
 			strcpy(aktywnyObrazek->nazwaPliku, buf);
 			printf("Obraz zostal zapisany do galerii.\n");
 			wyborMenuPrzetwarzania = 9;
