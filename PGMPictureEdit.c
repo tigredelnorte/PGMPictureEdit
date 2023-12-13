@@ -555,6 +555,22 @@ void eksportDoPGM(struct ObrazekPGM obrazek)
 	scanf("%*[^\n]");
 }
 
+void pokazObraz(struct ObrazekPGM obraz)
+{
+	printf("\nNazwa pliku: %s\n", obraz.nazwaPliku);
+	printf("Szerokosc: %d\n", obraz.szerokosc);
+	printf("Wysokosc: %d\n", obraz.wysokosc);
+	printf("Skala szarosci: %d\n", obraz.skalaSzarosci);
+	printf("XXXXXXXXX\n");
+	for (int i = 0; i < obraz.wysokosc; i++) {
+		for (int j = 0; j < obraz.szerokosc; j++) {
+			printf("%d ", obraz.piksele[i][j]);
+		}
+		printf("\n");
+	}
+	printf("XXXXXXXXX\n\n");
+}
+
 int main() {
 	char gwiazdki[] = { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' };
 	char star = '*';
@@ -586,6 +602,7 @@ int main() {
 				printf("\n");
 				bool obrazWczytanyPoprawnie = wczytajObraz(&wczytanyObrazek);
 				if (obrazWczytanyPoprawnie) dodajObrazDoGalerii(&galeriaJ, wczytanyObrazek);
+				pokazObraz(wczytanyObrazek);
 				printf("\n");
 				break;
 			case 2: // Ustaw aktywny obraz
@@ -593,18 +610,7 @@ int main() {
 				{
 					wypiszNazwyObrazow(&galeriaJ);
 					ustawAktywnyObraz(&galeriaJ, &indeksAktywnyObraz, &aktywnyObrazek);
-					printf("\nNazwa pliku: %s\n", aktywnyObrazek.nazwaPliku);
-					printf("Szerokosc: %d\n", aktywnyObrazek.szerokosc);
-					printf("Wysokosc: %d\n", aktywnyObrazek.wysokosc);
-					printf("Skala szarosci: %d\n", aktywnyObrazek.skalaSzarosci);
-					printf("XXXXXXXXX\n");
-					for (int i = 0; i < aktywnyObrazek.wysokosc; i++) {
-						for (int j = 0; j < aktywnyObrazek.szerokosc; j++) {
-							printf("%d ", aktywnyObrazek.piksele[i][j]);
-						}
-						printf("\n");
-					}
-					printf("XXXXXXXXX\n\n");
+					pokazObraz(aktywnyObrazek);
 				}
 				else printf("Brak obrazow w galerii. Dodaj nowy obraz.\n\n");
 				break;
@@ -676,17 +682,3 @@ int main() {
 	// Na koniec zwolnij pamiêæ zaalokowan¹ dla tablicy pikseli
 	return 0;
 }
-
-//printf("Nazwa pliku: %s\n", wczytanyObrazek.nazwaPliku);
-//printf("Szerokosc: %d\n", wczytanyObrazek.szerokosc);
-//printf("Wysokosc: %d\n", wczytanyObrazek.wysokosc);
-//printf("Skala szarosci: %d\n", wczytanyObrazek.skalaSzarosci);
-//
-//printf("XXXXXXXXX\n");
-//for (int i = 0; i < wczytanyObrazek.wysokosc; i++) {
-//	for (int j = 0; j < wczytanyObrazek.szerokosc; j++) {
-//		printf("%d ", wczytanyObrazek.piksele[i][j]);
-//	}
-//	printf("\n");
-//}
-//printf("XXXXXXXXX\n");
